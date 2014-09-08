@@ -128,6 +128,29 @@ var app = {
                     }, app.errorHandler);
                 }, false);
                 
+                document.getElementById('writeFile2').addEventListener('click', function(){
+                    fs.root.getFile('log.txt', {create: true, exclusive: false}, function(fileEntry){
+                        fileEntry.createWriter(function(writer){
+                           
+                            writer.onwriteend = function(evt) {
+                                console.log("contents of file now 'some sample text'");
+                                writer.truncate(11);
+                                writer.onwriteend = function(evt) {
+                                    console.log("contents of file now 'some sample'");
+                                    writer.seek(4);
+                                    writer.write(" different text");
+                                    writer.onwriteend = function(evt){
+                                        alert("contents of file now 'some different text'");
+                                    };
+                                };
+                            };
+                            writer.write("some sample text");
+                            
+                            
+                        }, app.errorHandler);
+                    }, app.errorHandler);
+                }, false);
+                
                 
                 document.getElementById('appendToFile').addEventListener('click', function(){
                     fs.root.getFile('log.txt', {create: false}, function(fileEntry) {
