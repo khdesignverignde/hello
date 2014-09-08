@@ -174,7 +174,7 @@ var app = {
             };
   
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-            window.requestFileSystem(window.TEMPORARY, 1024*1024 /*5MB*/, onInitFs, app.errorHandler);
+            window.requestFileSystem(window.PERSISTANT, 1024*1024 /*5MB*/, onInitFs, app.errorHandler);
         }
         
         console.log('Received Event: ' + id);
