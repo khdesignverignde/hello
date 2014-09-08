@@ -1,21 +1,4 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -27,6 +10,8 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.getElementById('photo').addEventListener('click', this.photoImgOnClick, false );
+        document.getElementById('takePhoto').addEventListener('click', this.takePhotoOnClick, false );
     },
     // deviceready Event Handler
     //
@@ -35,15 +20,130 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
     },
+    errorHandler : function(e){
+        var msg = '';
+
+          switch (e.code) {
+            case FileError.QUOTA_EXCEEDED_ERR:
+              msg = 'QUOTA_EXCEEDED_ERR';
+              break;
+            case FileError.NOT_FOUND_ERR:
+              msg = 'NOT_FOUND_ERR';
+              break;
+            case FileError.SECURITY_ERR:
+              msg = 'SECURITY_ERR';
+              break;
+            case FileError.INVALID_MODIFICATION_ERR:
+              msg = 'INVALID_MODIFICATION_ERR';
+              break;
+            case FileError.INVALID_STATE_ERR:
+              msg = 'INVALID_STATE_ERR';
+              break;
+            case FileError.ENCODING_ERR:
+              msg = 'ENCODING_ERR';
+              break;
+          
+            default:
+              msg = 'Unknown Error';
+              break;
+          };
+        alert(e.code + ': Error: ' + msg);
+    },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+        
+        if(id === 'deviceready'){
+            var parentElement = document.getElementById(id);
+            var listeningElement = parentElement.querySelector('.listening');
+            var receivedElement = parentElement.querySelector('.received');
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+            listeningElement.setAttribute('style', 'display:none;');
+            receivedElement.setAttribute('style', 'display:block;');
+            
+            var onInitFs = function(fs){
+                alert('fileSystem '+ fs.name +' available'); 
+                
+                document.getElementById('createFile').addEventListener('click',function(){
+                    var str = '';
+                    for(var i in fs){
+                        str += i + ' ';
+                        if(typeof fs[i] === 'object'){
+                            for(var j in fs[i]){
+                                str += j + ' ';
+                            }
+                        }
+                    }
+                    
+                    console.log('createFileTest ' +  ' ' + str + fs.root.fullPath);
+                    console.log(fs.root.isDirectory);
+                    console.log(fs.root.getFile);
+                    console.log(navigator);
+                    
+                    
+                    fs.root.getFile('log.txt', {create: true, exclusive: true }, function(fileEntry) {
+ 
+                        // fileEntry.isFile === true
+                        // fileEntry.name == 'log.txt'
+                        // fileEntry.fullPath == '/log.txt'
 
+                        console.log('hallo');
+                        console.log(fileEntry.fullPath);
+
+                      }, app.errorHandler); 
+                    }
+                , false );
+                
+                document.getElementById('loadFile').addEventListener('click', function(){
+                    fs.root.getFile('log.txt', {}, function(fileEntry) {
+
+                        // Get a File object representing the file,
+                        // then use FileReader to read its contents.
+                        fileEntry.file(function(file) {
+                           var reader = new FileReader();
+
+                           reader.onloadend = function(e) {
+                             var txtArea = document.getElementById('fileTest');
+                             txtArea.value = e;
+                           };
+
+                           reader.readAsText(file);
+                        }, app.errorHandler);
+
+                      }, app.errorHandler);
+
+                }, false );
+                
+            };
+  
+            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+            window.requestFileSystem(window.TEMPORARY, 1024*1024 /*5MB*/, onInitFs, app.errorHandler);
+        }
+        
         console.log('Received Event: ' + id);
+        
+    },    
+    photoImgOnClick: function(){
+        document.getElementById('photo').src = 'img/owl8.jpg';
+    },
+    takePhotoOnClick: function(){
+        
+        navigator.camera.getPicture(
+            //success
+            function (imageData) {
+                var image = document.getElementById('photo');
+                image.src = "data:image/jpeg;base64," + imageData;
+            }, 
+            //fail
+            function (message) {
+                alert('Failed because: ' + message);
+            },
+            //options
+            { 
+                quality: 50,
+                destinationType: Camera.DestinationType.DATA_URL 
+            }
+        );
+        
+        document.getElementById('photo').src = 'img/owl8.jpg';
     }
 };
