@@ -103,7 +103,7 @@ var app = {
 
                            reader.onloadend = function(e) {
                              var txtArea = document.getElementById('fileTest');
-                             txtArea.value = e;
+                             txtArea.value = 'result (nix): ' +  this.result;
                            };
 
                            reader.readAsText(file);
