@@ -42,6 +42,18 @@ var app = {
             case FileError.ENCODING_ERR:
               msg = 'ENCODING_ERR';
               break;
+            case FileError.NO_MODIFICATION_ALLOWED_ERR:
+              msg = 'NO_MODIFICATION_ALLOWED_ERR';
+              break;
+            case FileError.NOT_READABLE_ERR:
+              msg = 'NOT_READABLE_ERR';
+              break;
+            case FileError.PATH_EXISTS_ERR:
+              msg = 'PATH_EXISTS_ERR';
+              break;
+            case FileError.TYPE_MISMATCH_ERR:
+              msg = 'TYPE_MISMATCH_ERR';
+              break;
           
             default:
               msg = 'Unknown Error';
@@ -92,6 +104,29 @@ var app = {
                       }, app.errorHandler); 
                     }
                 , false );
+                
+                
+                document.getElementById('writeFile').addEventListener('click', function(){
+                    fs.root.getFile('log.txt', {create: true}, function(fileEntry){
+                        fileEntry.createWriter(function(fileWriter){
+                            
+                            fileWriter.onwriteend = function(e) {
+                              alert('Write completed.');
+                            };
+
+                            fileWriter.onerror = function(e) {
+                              alert( 'Write failed: ' + e.toString());
+                            };
+
+                            // Create a new Blob and write it to log.txt.
+                            var blob = new Blob(['Lorem Ipsum'], {type: 'text/plain'});
+
+                            fileWriter.write(blob);
+                            
+                            
+                        }, app.errorHandler);
+                    }, app.errorHandler);
+                }, false);
                 
                 document.getElementById('loadFile').addEventListener('click', function(){
                     fs.root.getFile('log.txt', {}, function(fileEntry) {
