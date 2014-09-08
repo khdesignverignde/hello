@@ -128,6 +128,29 @@ var app = {
                     }, app.errorHandler);
                 }, false);
                 
+                
+                document.getElementById('appendToFile').addEventListener('click', function(){
+                    fs.root.getFile('log.txt', {create: false}, function(fileEntry) {
+
+                    // Create a FileWriter object for our FileEntry (log.txt).
+                    fileEntry.createWriter(function(fileWriter) {
+
+                      fileWriter.seek(fileWriter.length); // Start write position at EOF.
+
+                      // Create a new Blob and write it to log.txt.
+                      var blob = new Blob(['Hello World'], {type: 'text/plain'});
+
+                      fileWriter.write(blob);
+
+                    }, app.errorHandler);
+
+                  }, app.errorHandler);
+
+                    
+                    
+                }, false);
+                
+                
                 document.getElementById('loadFile').addEventListener('click', function(){
                     fs.root.getFile('log.txt', {}, function(fileEntry) {
 
